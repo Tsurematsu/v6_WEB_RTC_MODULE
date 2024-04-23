@@ -3,7 +3,7 @@ import express from 'express';
 import proxies from '../proxie/proxies.js';
 export default function App() {
     const app = express()
-
+    
     // implementa rucas
     app.get('/api', (req, res) => {
         res.send('Hello World');

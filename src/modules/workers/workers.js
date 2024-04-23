@@ -14,7 +14,7 @@ export default new class workers{
     // Inicialización de puerto del servidor stun y react
     async run(){
         await this.stunServer();
-        await this.react();
+        // await this.react();
     }
 
     // Inicialización de servidor stun
@@ -37,11 +37,12 @@ export default new class workers{
         log.stunServer(responseRuntime.url);
     }
 
-    // Inicialización de servidor react
-    // envía el path del archivo script correspondiente al de inicio del servidor react, el cual manejara la lógica de la aplicación
-    // se envía la ruta del archivo script para que el hilo secundario pueda ejecutarlo
-    // Nota: se debe controlar la ruta del archivo script
-    // Nota: este scrip secundario en las instrucciones solo se encarga de controlar la ejecución interna del proyecto de react 
+    /*  Inicialización de servidor react
+        envía el path del archivo script correspondiente al de inicio del servidor react, el cual manejara la lógica de la aplicación
+        se envía la ruta del archivo script para que el hilo secundario pueda ejecutarlo
+        Nota: se debe controlar la ruta del archivo script
+        Nota: este scrip secundario en las instrucciones solo se encarga de controlar la ejecución interna del proyecto de react 
+    */ 
     async react() {
         const react = new WORKERS();
         let responseRuntime = await react.run({
