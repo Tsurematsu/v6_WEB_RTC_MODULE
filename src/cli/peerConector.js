@@ -9,21 +9,30 @@ export default async function peerConector({
     name="Juan", 
     room="room1"
 }){
-    const params = {url, newMember, name, room};
-    let Socket = await socket(params);
-    log.system("Socket connected, your ID:", Socket.id);
-    await showAlert(`Socket connected, your ID: ${Socket.id}`);
+    url = String(url);
+    name = String(name);
+    room = String(room);
+    let Socket = await socket({url, newMember, name, room});
+    console.log("iniciando peerConector my ID:", Socket.id);
     
-    Socket.events.joiNotMe(async (data) => {
-        Socket.emit.offer(data.id, {data: "Hola soy el cliente 1"});
-    });
-
-    Socket.events.offer(async (data) => {
-        log.test("OFFER MEMBER: ", data);
+    Socket.Events.join((entry, retorno)=>{
         
-    });
+        retorno("offer", "Hola soy el cliente 1");
+    })
+    
+    Socket.Events.offer((entry, retorno, sender)=>{
+        
+        retorno("answer", "Hola soy el cliente 2");
+    })
+    
+    Socket.Events.answer((entry)=>{
+    })
 
-  
+    Socket.Events.candidate((entry)=>{
+
+    })
+    
+    
 }
 
 

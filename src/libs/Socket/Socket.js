@@ -7,25 +7,30 @@ export default function Socket(server) {
     const Members = (room) => Object.keys(rooms).filter((id) => rooms[id].room == room);
     const RoomClient = (id) => rooms[id].room;
     socket.on('connection', (clientConnected) => {
-        clientConnected.on('join', (data) => {
-          const room = String(data.room??data);
+        clientConnected.on('join', (entry) => {
+          const room = String(entry.room??entry);
           clientConnected.join(room);
           rooms[clientConnected.id] = { id: clientConnected.id, room};
           rooms_socket[clientConnected.id] = clientConnected;
-          socket.to(room).emit('join', {id: clientConnected.id, members: Members(room)});
+          socket.to(room).emit('join', {sender: clientConnected.id, members: Members(room)});
+        });       
+
+        clientConnected.on('offer', (entry) => {
+          if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
+            rooms_socket[entry.addresses].emit('offer', {sender: clientConnected.id, data: entry.data});
+          }
         });
 
-        clientConnected.on('candidate', (msg) => {
-          rooms_socket[msg.client].emit('candidate', {msg: msg.data, id: clientConnected.id});
-        });
-        clientConnected.on('offer', (msg) => {
-          rooms_socket[msg.client].emit('offer', {msg: msg.data, id: clientConnected.id});
-        });
-        clientConnected.on('answer', (msg) => {
-          rooms_socket[msg.client].emit('answer', {msg: msg.data, id: clientConnected.id});
+        clientConnected.on('answer', (entry) => {
+          if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
+            rooms_socket[entry.addresses].emit('answer', {sender: clientConnected.id, data: entry.data});
+          }
         });
 
-        clientConnected.on('message', (msg) => {
+        clientConnected.on('candidate', (entry) => {
+          if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
+            rooms_socket[entry.addresses].emit('candidate', {sender: clientConnected.id, data: entry.data});
+          }
         });
 
         clientConnected.on('disconnect', async () => {
