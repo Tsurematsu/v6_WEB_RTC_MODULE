@@ -16,21 +16,24 @@ export default function Socket(server) {
         });       
 
         clientConnected.on('offer', (entry) => {
-          if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
-            rooms_socket[entry.addresses].emit('offer', {sender: clientConnected.id, data: entry.data});
-          }
+          // if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
+          //   rooms_socket[entry.addresses].emit('offer', {sender: clientConnected.id, data: entry.data});
+          // }
+          socket.to(RoomClient(clientConnected.id)).emit('offer', {sender: clientConnected.id, data: entry.data});
         });
 
         clientConnected.on('answer', (entry) => {
-          if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
-            rooms_socket[entry.addresses].emit('answer', {sender: clientConnected.id, data: entry.data});
-          }
+          // if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
+          //   rooms_socket[entry.addresses].emit('answer', {sender: clientConnected.id, data: entry.data});
+          // }
+          socket.to(RoomClient(clientConnected.id)).emit('answer', {sender: clientConnected.id, data: entry.data});
         });
 
         clientConnected.on('candidate', (entry) => {
-          if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
-            rooms_socket[entry.addresses].emit('candidate', {sender: clientConnected.id, data: entry.data});
-          }
+          // if (entry.addresses !== null && rooms_socket[entry.addresses] !== undefined) {
+          //   rooms_socket[entry.addresses].emit('candidate', {sender: clientConnected.id, data: entry.data});
+          // }
+          socket.to(RoomClient(clientConnected.id)).emit('candidate', {sender: clientConnected.id, data: entry.data});
         });
 
         clientConnected.on('disconnect', async () => {

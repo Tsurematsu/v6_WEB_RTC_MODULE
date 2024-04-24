@@ -13,11 +13,22 @@ function showAlert(message) {
     });
   }
 
+
+
+
 const log = new Proxy({
     hidden:[],
+    list:{},
     all:false,
 },{
     get:(obj, props)=>{
+        obj.list[props] = "";
+        if (props == "get") { 
+            setTimeout(()=>{
+                console.warn(Object.keys(obj.list)); 
+                return Object.keys(obj.list)
+            }, 100);
+        }
         if (obj.hidden.includes(props) || obj.all) {
             return ()=>{return false};
         }
@@ -32,6 +43,8 @@ const log = new Proxy({
         return true;
     }
 })
+
+
 
 
 export {ReadJSON, showAlert, log}

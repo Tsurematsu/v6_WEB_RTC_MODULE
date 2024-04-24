@@ -12,65 +12,78 @@ export default async function peerConector({
     url = String(url);
     name = String(name);
     room = String(room);
+    
     let Socket = await socket({url, newMember, name, room});
-    console.log("iniciando peerConector my ID:", Socket.id);
     
-    Socket.Events.join((entry, retorno)=>{
-        
-        retorno("offer", "Hola soy el cliente 1");
-    })
+    const iceServers = await ReadJSON("/cli/iceServers.json");
+    const peerClient = new RTCPeerConnection({iceServers});
+    RTC_CHAT(peerClient);
     
-    Socket.Events.offer((entry, retorno, sender)=>{
-        
-        retorno("answer", "Hola soy el cliente 2");
-    })
     
-    Socket.Events.answer((entry)=>{
+    Socket.Events.join(async (entry, retorno, sender)=>{
+        log.id("My id:", Socket.id);
+        peerClient.createOffer().then((offer) => {
+            peerClient.setLocalDescription(offer);
+            peerClient.onicecandidate = (event) => {
+                if (event.candidate) {
+                    log.candidates("Enviando candidato a", sender);
+                    Socket.Emit("candidate", event.candidate, sender); 
+                }
+            };
+            
+            // Socket.Emit("offer", offer, sender);
+            retorno("offer", offer);
+        });
     })
 
-    Socket.Events.candidate((entry)=>{
-
+    Socket.Events.offer(async (entry, retorno, sender)=>{
+        await peerClient.setRemoteDescription(new RTCSessionDescription(entry))
+        const answer = await peerClient.createAnswer();
+        peerClient.setLocalDescription(answer);
+        retorno("answer", answer);
     })
+    
+    Socket.Events.answer(async (entry, _, sender)=>{
+        await peerClient.setRemoteDescription(new RTCSessionDescription(entry))
+    })
+
+    Socket.Events.candidate((entry, _, sender)=>{
+        log.candidates("Recibiendo candidato de", sender);
+        peerClient.addIceCandidate(new RTCIceCandidate(entry));
+    })
+    
+   
     
     
 }
 
 
 
-// Saved code
-// Socket.MembersIdNotMe()
 
 
-
-    // let peerClient;
-    // if (!log.test("Iniciando")) {
-    //     peerClient = new RTCPeerConnection({ iceServers: await ReadJSON("/cli/iceServers.json") },);
-    //     RTC_CHAT(peerClient);
-    // }
-
-// let sendChat = ()=>"";
-// let sendChat1 = ()=>"";
-// async function RTC_CHAT(peerClient){
-//     const chat = peerClient.createDataChannel('chat');
-//     chat.addEventListener('open', () => {
-//         log.chatPeer("Chat open");
-//         sendChat = (msg) => chat.send(msg);
-//     });
-//     const chat1 = peerClient.createDataChannel('canal1');
-//     chat1.addEventListener('open', () => {
-//         log.chatPeer("Chat 1 open");
-//         sendChat1 = (msg) => chat1.send(msg);
-//     });
-//     peerClient.addEventListener('datachannel', (event) => {
-//         const canal = event.channel;
-//         if (canal.label == 'chat') {
-//             log.chatPeer("Chat message:", canal);     
-//         }
-//         if (canal.label == 'canal1') {
-//             log.chatPeer("Chat 1 message:", canal);
-//         }
-//     });
-// }
+let sendChat = ()=>"";
+let sendChat1 = ()=>"";
+async function RTC_CHAT(peerClient){
+    const chat = peerClient.createDataChannel('chat');
+    chat.addEventListener('open', () => {
+        log.chatPeer("Chat open");
+        sendChat = (msg) => chat.send(msg);
+    });
+    const chat1 = peerClient.createDataChannel('canal1');
+    chat1.addEventListener('open', () => {
+        log.chatPeer("Chat 1 open");
+        sendChat1 = (msg) => chat1.send(msg);
+    });
+    peerClient.addEventListener('datachannel', (event) => {
+        const canal = event.channel;
+        if (canal.label == 'chat') {
+            log.chatPeer("Chat message:", canal);     
+        }
+        if (canal.label == 'canal1') {
+            log.chatPeer("Chat 1 message:", canal);
+        }
+    });
+}
 
 
 
@@ -78,19 +91,6 @@ export default async function peerConector({
 
 // saved Code
 
-
-            // log.peer("New member:", data);
-            // await showAlert(`Un nuevo miembro`);
-            // peerClient.onicecandidate = (event) => {
-            //     if (event.candidate) { 
-            //         log.peer("Send candidate to:", data.id);
-            //         Socket.sendMessage('candidates', {client:data.id, data: event.candidate});
-            //      }
-            // };
-            // const offer = await peerClient.createOffer();
-            // peerClient.setLocalDescription(offer);
-            // log.peer("Send offer to:", data.id);
-            // Socket.sendMessage('offer', {client:data.id, data:offer});
 
   // Socket.events.offer(async (data) => {
     //     if (log.test("OFFER MEMBER: ", data)) {
@@ -111,10 +111,5 @@ export default async function peerConector({
     //         await showAlert(`Respuesta del miembro`);
     //         await peerClient.setRemoteDescription(new RTCSessionDescription(data.msg))
     //     }
-    // });
-    
-    // Socket.events.candidate((data) => {
-    //     log.candidates("Add candidate:", data.msg);
-    //     peerClient.addIceCandidate(new RTCIceCandidate(data.msg));
     // });
     

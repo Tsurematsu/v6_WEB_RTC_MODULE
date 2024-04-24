@@ -15,22 +15,6 @@ export default async function socket
             resolve(await callback(...args));
         });    
     });
-    const Emit = (event, output, addresses=null)=>{
-        let retorno = {data: output};
-        if (addresses!==null) {retorno.addresses = String(addresses);}
-        socket.emit(event, retorno);
-    };
-    let ListMembers = [];
-    let PromiseJoin = ()=>{};
-    await ToAwaitEvent("connect");
-    console.log("Connected to server");
-    ToAwaitEvent("join", async ({sender, members}) => {
-        ListMembers = members;
-        PromiseJoin();
-    });
-    Emit("join", room);
-    await new Promise((resolve) => {PromiseJoin = resolve;});
-    console.log("Joined to room:", room);
     const AdapterEvents = (event, callback) => {
         socket.on(event, (entry)=>{
             let dataCall = entry.data??entry;
@@ -47,11 +31,26 @@ export default async function socket
         candidate: (callback)=>AdapterEvents("candidate", callback),
         leave: (callback)=>AdapterEvents("leave", callback),
     }
+
+    const Emit = (event, output, addresses=null)=>{
+        let retorno = {data: output};
+        if (addresses!==null) {retorno.addresses = String(addresses);}
+        socket.emit(event, retorno);
+    };
+    let ListMembers = [];
+    // await ToAwaitEvent("connect");
+    ToAwaitEvent("join", async ({sender, members}) => {
+        ListMembers = members;
+    });
+    Emit("join", room);
+
     return {
         socket,
         Emit,
         Events,
         id: socket.id,
+        getMembers:()=>ListMembers,
+        MembersIdNotMe
     }
 
 }
