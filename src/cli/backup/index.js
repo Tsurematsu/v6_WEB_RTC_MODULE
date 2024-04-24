@@ -99,7 +99,7 @@ async function FunctionInitClient(members, socket, SelectMember) {
         socket.on('sdp_answer', (data) => {
             webRTC.setRemoteDescription(new RTCSessionDescription(data.msg));
         });
-    });     
+    });
 }  
 
 

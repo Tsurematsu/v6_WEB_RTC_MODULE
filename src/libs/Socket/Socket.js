@@ -4,34 +4,36 @@ export default function Socket(server) {
     const rooms = {};
     const rooms_socket = {};
 
-    socket.on('connection', (client) => {
-      
-        client.on('join', (room) => {
-          if (rooms[client.id] == undefined) {
-            client.join(room);
-            rooms[client.id] = { id: client.id, room: room};
-            rooms_socket[client.id] = client;
-            socket.to(room).emit('join', {id: client.id, members: Members(room)});
-          }
+    const Members = (room) => Object.keys(rooms).filter((id) => rooms[id].room == room);
+    const RoomClient = (id) => rooms[id].room;
+    socket.on('connection', (clientConnected) => {
+        clientConnected.on('join', (data) => {
+          const room = String(data.room??data);
+          clientConnected.join(room);
+          rooms[clientConnected.id] = { id: clientConnected.id, room};
+          rooms_socket[clientConnected.id] = clientConnected;
+          socket.to(room).emit('join', {id: clientConnected.id, members: Members(room)});
         });
 
-        client.on('message', (data) => {
-          let selectSocket = data.client?rooms_socket[data.client]:client;
-          let selectEvent = data.event??'message'; 
-          let selectData = data.data??data;
-          if (data.room && data.client==undefined) {
-            selectSocket = socket.to(data.room).emit(selectEvent, {msg:selectData, id:client.id});
-          }else{
-            selectSocket.emit(selectEvent, {msg:selectData, id:client.id});
-          }
+        clientConnected.on('candidate', (msg) => {
+          rooms_socket[msg.client].emit('candidate', {msg: msg.data, id: clientConnected.id});
         });
-      
-        client.on('disconnect', async () => {
-          if (rooms[client.id] != undefined) {
-            let room = RoomClient(client.id);
-            delete rooms[client.id];
-            delete rooms_socket[client.id];
-            socket.emit('leave', {id: client.id, members:Members(room)});
+        clientConnected.on('offer', (msg) => {
+          rooms_socket[msg.client].emit('offer', {msg: msg.data, id: clientConnected.id});
+        });
+        clientConnected.on('answer', (msg) => {
+          rooms_socket[msg.client].emit('answer', {msg: msg.data, id: clientConnected.id});
+        });
+
+        clientConnected.on('message', (msg) => {
+        });
+
+        clientConnected.on('disconnect', async () => {
+          if (rooms[clientConnected.id] != undefined) {
+            let room = RoomClient(clientConnected.id);
+            delete rooms[clientConnected.id];
+            delete rooms_socket[clientConnected.id];
+            socket.emit('leave', {id: clientConnected.id, members:Members(room)});
           }
         });
         
