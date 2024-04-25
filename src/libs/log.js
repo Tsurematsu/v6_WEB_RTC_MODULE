@@ -7,6 +7,7 @@ const log = new Proxy({
     hidden:[...config],
     list:{},
     all:false,
+    focus:"",
 },{
     get:(obj, props)=>{
         obj.list[props] = "";
@@ -16,6 +17,14 @@ const log = new Proxy({
                 return Object.keys(obj.list)
             }, 100);
         }
+        if (obj.focus!="") {
+            if (obj.focus.includes(props)){
+                return (...args)=>{
+                    console.log(`[${props}]=> `, ...args); return true};
+                }else{
+                    return ()=>{return false};
+                }
+            }
         if (obj.hidden.includes(props) || obj.all) {
             return ()=>{return false};
         }
@@ -25,6 +34,7 @@ const log = new Proxy({
         };
     },
     set:(obj, props, value)=>{
+        if (props == "focus") { obj.focus = value;}
         if (props == "hidden") { obj.hidden.push(...value);}
         if (props == "all") { obj.all = value; }
         return true;

@@ -1,15 +1,16 @@
-import log from './libs/log.js';
+import dotenv from 'dotenv';
 import http from 'http';
-import App from './modules/express/express.js';
-import dotenv from 'dotenv'; dotenv.config();
-import workers from './modules/workers/workers.js';
 import Socket from './libs/Socket/Socket.js';
+import log from './libs/log.js';
+import App from './modules/express/express.js';
+import workers from './modules/workers/workers.js';
+dotenv.config();
 // Importación de logs, elementos para control de impresión en consola, funciones para imprimir mensajes en consola
 import testBrowser from './libs/testBrowser.js';
 
 // Declaración de variables implementación sever padre (http)
 async function Main(){
-    console.log("\n\n\n");
+    clearConsole();
     const PORT = process.env.PORT || 3000;
     // Hilos secundarios [React, StunServer] 
     await workers.run();
@@ -20,7 +21,16 @@ async function Main(){
     server.listen(PORT, () => {
         log.server(`http://localhost:${PORT}`);
     });
-    let newPages = await testBrowser('http://localhost:8000/', msg =>log.browser(msg.text()));
+    let newPages = await testBrowser('http://localhost:8000/',
+        (msg, index)=>log['browser_' + index](msg.text()));
     for (let index = 0; index < 2; index++) {newPages(index)}
 }
 Main();
+
+
+function clearConsole() {
+    console.log("\n\n\n\n\n\n\n\n\n\n\n\n");
+    console.log("\n\n\n\n\n\n\n\n\n\n\n\n");
+    console.log("\n\n\n\n\n\n\n\n\n\n\n\n");
+    process.stdout.write('\x1B[2J\x1B[0f');
+}

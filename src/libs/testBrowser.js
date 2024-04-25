@@ -4,7 +4,7 @@ export default async function testBrowser(url, callback=()=>{}){
   
   const newPage = async (index) => {
     const page = await browser.newPage();
-    page.on('console', callback);
+    page.on('console', (msg)=>{callback(msg, index)});
     await page.goto(url, {waitUntil: 'networkidle0'});
     return page;
   }

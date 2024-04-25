@@ -1,0 +1,75 @@
+{
+    "workbench.sideBar.location": "right",
+    "tabnine.experimentalAutoImports": true,
+    "workbench.startupEditor": "none",
+    "window.menuBarVisibility": "compact",
+    "redhat.telemetry.enabled": true,
+    "explorer.confirmDragAndDrop": false,
+    "security.workspace.trust.untrustedFiles": "open",
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "cSpell.language": "en,es,es-ES",
+    "explorer.confirmDelete": false,
+    "[html]": {
+        "editor.defaultFormatter": "lonefy.vscode-JS-CSS-HTML-formatter"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "git.enableSmartCommit": true,
+    "git.autofetch": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "liveServer.settings.donotShowInfoMsg": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "git.ignoreMissingGitWarning": true,
+    "workbench.editorAssociations": {
+        "*.html": "default"
+    },
+    "editor.linkedEditing": true,
+    "git.openRepositoryInParentFolders": "always",
+    "workbench.colorTheme": "Tokyo Night",
+    "workbench.iconTheme": "material-icon-theme",
+    "cSpell.userWords": [
+        "ANFITRION",
+        "appi",
+        "arduino",
+        "datasource",
+        "enrutamiento",
+        "ingal",
+        "ingals",
+        "meetingted",
+        "Modulos",
+        "MTED",
+        "plpgsql",
+        "postgres",
+        "preact",
+        "seft",
+        "setear",
+        "Singal",
+        "tourteam",
+        "usef",
+        "zustand"
+    ],
+    "terminal.integrated.env.linux": {},
+    "console-ninja.featureSet": "Community",
+    "terminal.integrated.env.windows": {},
+    "remote.SSH.remotePlatform": {
+        "192.168.80.202": "linux"
+    },
+    "console-ninja.warnOnNoToolsDetected": false,
+    "files.autoSave": "onFocusChange",
+    "php.validate.executablePath": "C:/php/php.exe",
+    "php.debug.executablePath": "C:/php/php.exe",
+    "git.autofetchPeriod": 100,
+    "git.confirmSync": false,
+    "terminal.integrated.fontFamily": "FiraCode Nerd Font",
+    "git.ignoreRebaseWarning": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "explorer.confirmPasteNative": false,
+    "editor.fontLigatures": true,
+    "editor.inlayHints.fontFamily": "FiraCode Nerd Font"
+}
