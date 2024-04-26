@@ -13,11 +13,9 @@ function showAlert(message) {
     });
   }
 
-
-
-
 const log = new Proxy({
     hidden:[],
+    noRepeat:{},
     list:{},
     all:false,
 },{
@@ -29,11 +27,18 @@ const log = new Proxy({
                 return Object.keys(obj.list)
             }, 100);
         }
+        if (props.includes('init')) {
+            if (obj.noRepeat[props]==undefined) {
+                obj.noRepeat[props] = true;
+            }else if (obj.noRepeat[props]==true) {
+                return ()=>{return false};
+            }
+        }
         if (obj.hidden.includes(props) || obj.all) {
             return ()=>{return false};
         }
         return (...args)=>{
-            console.log(`[${props}]=> `, ...args); 
+            console.log(`[${props}]>`, ...args); 
             return true
         };
     },

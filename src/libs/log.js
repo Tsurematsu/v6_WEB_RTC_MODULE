@@ -7,29 +7,18 @@ const log = new Proxy({
     hidden:[...config],
     list:{},
     all:false,
-    focus:"",
+    focus:[],
+    focused:[]
 },{
     get:(obj, props)=>{
         obj.list[props] = "";
-        if (props == "get") { 
-            setTimeout(()=>{
-                console.warn(Object.keys(obj.list)); 
-                return Object.keys(obj.list)
-            }, 100);
-        }
-        if (obj.focus!="") {
-            if (obj.focus.includes(props)){
-                return (...args)=>{
-                    console.log(`[${props}]=> `, ...args); return true};
-                }else{
-                    return ()=>{return false};
-                }
-            }
+        if (props == "get") {setTimeout(()=>{console.warn(Object.keys(obj.list)); return Object.keys(obj.list)}, 100);}                
         if (obj.hidden.includes(props) || obj.all) {
             return ()=>{return false};
         }
+
         return (...args)=>{
-            console.log(`[${props}]=> `, ...args); 
+            console.log(`[${props}]>`, ...args); 
             return true
         };
     },

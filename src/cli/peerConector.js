@@ -1,40 +1,58 @@
-import { log } from "./toolkit.js";
-
+import { log, ReadJSON } from "./toolkit.js";
 export default peerConector;
 
+const local_Log = console.log
 async function peerConector({ url = "/", name = "Juan", room = "room1" }) {
   url = String(url);
   name = String(name);
   room = String(room);
+  const iceServers = await ReadJSON("/cli/iceServers.json");
+  const peerClient = new RTCPeerConnection({iceServers})
+  const chat = peerClient.createDataChannel('chat');
+  chat.addEventListener('open', () => {
+    chat.send("Hola k tal");
+  });
+  peerClient.addEventListener('datachannel', (event) => {
+    const canal = event.channel;
+    canal.addEventListener('message', (input) => {
+      local_Log(input.data);
+    })
+  });
   const socket = io(url);
-  log.hidden = [
-    "system", 
-    "system_connect", 
-    "system_join", 
-    // "system_message", 
-    // "system_message_1"
-  ]
   socket.on("connect", () => {
-    log.system_connect("colección establecida");
     socket.emit("join", "cuarto1");
   });
-
   socket.on("join", (sender) => {
-    if (socket.id==sender) {
-      log.system("My ID =>", socket.id);  
-    }else {
-      log.system_join("client joined =>", sender);
-      // socket.send({addressee:sender, data:"Hello"});
-      socket.send("it's working", "msg", sender);
-      // socket.send("Hello");
+    if (socket.id!==sender) {
+      peerClient.onicecandidate = (event) => {if (event.candidate) {
+        socket.send("candidate", event.candidate, sender); 
+      }};
+      peerClient.createOffer().then((offer) => {
+        peerClient.setLocalDescription(offer);
+        socket.send("offer", offer, sender);
+      });
     }
   });
-
-  socket.on("message", (data) => {
-    log.system_message("message =>", data);
+  socket.on("answer", (answer, _, addressee) => {
+    if (addressee==socket.id) {
+      peerClient.setRemoteDescription(new RTCSessionDescription(answer));
+    }
   });
-  socket.on("msg", (data) => {
-    log.system_message_1("mgs =>", data);
+  socket.on("candidate", (candidate, _, addressee) => {
+    if (addressee==socket.id) {
+      peerClient.addIceCandidate(new RTCIceCandidate(candidate));
+    }
   });
-
+  socket.on("offer", (offer, sender, addressee) => {
+    if (addressee==socket.id) {
+      peerClient.onicecandidate = (event) => {if (event.candidate) {
+        socket.send("candidate", event.candidate, sender); 
+      }};
+      peerClient.setRemoteDescription(new RTCSessionDescription(offer));
+      peerClient.createAnswer().then((answer) => {
+        peerClient.setLocalDescription(answer);
+        socket.send("answer", answer, sender);
+      });
+    }
+  });
 }

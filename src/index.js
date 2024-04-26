@@ -23,9 +23,34 @@ async function Main(){
     });
     let newPages = await testBrowser('http://localhost:8000/',
         (msg, index)=>log['browser_' + index](msg.text()));
-    for (let index = 0; index < 2; index++) {newPages(index)}
+    // await newPages(1);
+    // await newPages(2);
+    // await newPages(3);
 }
 Main();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function clearConsole() {

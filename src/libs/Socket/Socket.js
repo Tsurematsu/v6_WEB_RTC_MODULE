@@ -1,75 +1,53 @@
 // log.hidden = ["socket_io", "socket_join"]
 import { Server } from "socket.io";
 import log from "../log.js";
+log.hidden=[
+  "socket_message",
+  // "browser_1",
+  // "browser_2",
+  // "browser_3"
+]
+
+
 export default function Socket(server) {
-  let Clientes = [];
   const io = new Server(server);
-  const Cache_clients = {};
-  
-  log.hidden = [
-    "socket_io", 
-    "socket_join", 
-    "socket_message", 
-    // "browser_0", 
-    // "browser_1"
-  ];
-
+  const ClientCache = {};
   io.on("connection", (socket) => {
-    Cache_clients[socket.id] = socket;
-    Clientes=Object.keys(Cache_clients);
-    
-    log.socket_io(`cliente conectado ${socket.id}:${Clientes.length} clientes conectados`);
-    
-    socket.on("join", async (room) => {
-      log.socket_join("joined to => ", room);
+    ClientCache[socket.id]=ClientCache[socket.id]??{};
+    socket.on("join", async (room, ...args) => {
+      ClientCache[socket.id].room=ClientCache[socket.id].room??room;
       await socket.join(room);
+      log.joinClient(room, socket.id);
       io.to(room).emit("join", String(socket.id));
-      // socket.to(room).emit("join", String(socket.id));
     });
 
-    // Nota: el evento "message" es reservado por socket.io
-    socket.on("message", async (data, event=null, addressee=null) => {
-      log.socket_message("message =>", data, event, addressee);
-      if (event!=null && addressee!=null) {
-        Cache_clients[addressee].emit(event, data);
-      }else if(event!=null){
-        socket.broadcast.emit(event, data);
-      }else{
-        socket.broadcast.emit("message", data);
-      }
+    socket.on("message", async (event=null, data=null, addressee=null) => {
+      ClientCache[socket.id]=ClientCache[socket.id]??{};
+      ClientCache[socket.id].data=ClientCache[socket.id].data??data;
+      log.socket_message("message =>", {
+        event, 
+        data, 
+        addressee,
+        ClientCache:ClientCache[socket.id]
+      });
+      const roomClient = ClientCache[socket.id].room; 
+      const EmtSocket = roomClient?
+            socket.to(roomClient):
+            socket.broadcast;
+            
+      EmtSocket.emit(
+        event??"message", 
+        data??[], 
+        socket.id, 
+        addressee
+      );
     });
 
-    socket.on("disconnect", async () => {
-      log.socket_io(`cliente desconectado ${socket.id}:${Clientes.length} clientes conectados`);
-      delete Cache_clients[socket.id];
-    });
   });
   return io;
 }
 
-// clientConnected.on('join', (entry) => {
-//   const room = String(entry.room??entry).trim();
-//   clientConnected.join(room);
-//   clientConnected.to(room).emit('join', {sender: clientConnected.id});
-// });
 
-// clientConnected.on('offer', (entry) => {
-//   clientConnected.to(entry.room).emit('offer', entry.data);
-// });
 
-// clientConnected.on('answer', (entry) => {
-//   clientConnected.to(entry.room).emit('answer', entry.data);
-// });
-
-// clientConnected.on('candidate', (entry) => {
-//   clientConnected.to(entry.room).emit('candidate', entry.data);
-// });
-
-// // message
-// clientConnected.on('message', (entry) => {
-//   clientConnected.to(entry.room).emit('message', entry.data);
-// });
-
-// clientConnected.on('disconnect', async () => {
-//   clientConnected.emit('leave', {id: clientConnected.id});
-// });
+    // socket.on("disconnect", async () => {
+    // });
