@@ -4,6 +4,12 @@ async function ReadJSON(URL) {
     return await response.json();
 }
 
+
+/**
+ * Note that the alert function is a blocking function, so it will stop the execution of the code until the user closes the alert window.
+ * @param {*} message 
+ * @returns 
+ */
 function showAlert(message) {
     return new Promise(resolve => {
       setTimeout(() => {

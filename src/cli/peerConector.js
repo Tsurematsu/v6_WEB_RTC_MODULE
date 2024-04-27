@@ -22,6 +22,7 @@ async function peerConector({ url = "/", name = "Juan", room = "room1" }) {
   socket.on("connect", () => {
     socket.emit("join", "cuarto1");
   });
+
   socket.on("join", (sender) => {
     if (socket.id!==sender) {
       peerClient.onicecandidate = (event) => {if (event.candidate) {
@@ -33,6 +34,7 @@ async function peerConector({ url = "/", name = "Juan", room = "room1" }) {
       });
     }
   });
+  
   socket.on("answer", (answer, _, addressee) => {
     if (addressee==socket.id) {
       peerClient.setRemoteDescription(new RTCSessionDescription(answer));
@@ -43,6 +45,7 @@ async function peerConector({ url = "/", name = "Juan", room = "room1" }) {
       peerClient.addIceCandidate(new RTCIceCandidate(candidate));
     }
   });
+
   socket.on("offer", (offer, sender, addressee) => {
     if (addressee==socket.id) {
       peerClient.onicecandidate = (event) => {if (event.candidate) {
