@@ -21,11 +21,13 @@ async function Main(){
     server.listen(PORT, () => {
         log.server(`http://localhost:${PORT}`);
     });
+    
     let newPages = await testBrowser('http://localhost:8000/',
         (msg, index)=>log['browser_' + index](msg.text()));
-    // await newPages(1);
-    // await newPages(2);
-    // await newPages(3);
+    await newPages(1);
+    await newPages(2);
+    await newPages(3);
+    // await newPages(4);
 }
 Main();
 

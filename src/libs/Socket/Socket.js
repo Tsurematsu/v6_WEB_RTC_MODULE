@@ -1,18 +1,12 @@
 // log.hidden = ["socket_io", "socket_join"]
 import { Server } from "socket.io";
 import log from "../log.js";
-log.hidden=[
-  "socket_message",
-  // "browser_1",
-  // "browser_2",
-  // "browser_3"
-]
 export default function Socket(server) {
   const io = new Server(server);
   const ClientCache = {};
   io.on("connection", (socket) => {
     ClientCache[socket.id]=ClientCache[socket.id]??{};
-
+    log.hidden = ["socket_message", "joinClient"]
     socket.on("join", async (room, ...args) => {
       ClientCache[socket.id].room=ClientCache[socket.id].room??room;
       await socket.join(room);
